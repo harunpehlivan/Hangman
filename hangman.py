@@ -66,10 +66,7 @@ def randomWord():
 
 def hang(guess):
     global word
-    if guess.lower() not in word.lower():
-        return True
-    else:
-        return False
+    return guess.lower() not in word.lower()
 
 
 def spacedOut(word, guessed=[]):
@@ -82,30 +79,36 @@ def spacedOut(word, guessed=[]):
                 if word[x].upper() == guessedLetters[i]:
                     spacedWord = spacedWord[:-2]
                     spacedWord += word[x].upper() + ' '
-        elif word[x] == ' ':
+        else:
             spacedWord += ' '
     return spacedWord
             
 
 def buttonHit(x, y):
-    for i in range(len(buttons)):
-        if x < buttons[i][1] + 20 and x > buttons[i][1] - 20:
-            if y < buttons[i][2] + 20 and y > buttons[i][2] - 20:
-                return buttons[i][5]
-    return None
+    return next(
+        (
+            buttons[i][5]
+            for i in range(len(buttons))
+            if x < buttons[i][1] + 20
+            and x > buttons[i][1] - 20
+            and y < buttons[i][2] + 20
+            and y > buttons[i][2] - 20
+        ),
+        None,
+    )
 
 
 def end(winner=False):
     global limbs
-    lostTxt = 'You Lost, press any key to play again...'
-    winTxt = 'WINNER!, press any key to play again...'
     redraw_game_window()
     pygame.time.delay(1000)
     win.fill(GREEN)
 
     if winner == True:
+        winTxt = 'WINNER!, press any key to play again...'
         label = lost_font.render(winTxt, 1, BLACK)
     else:
+        lostTxt = 'You Lost, press any key to play again...'
         label = lost_font.render(lostTxt, 1, BLACK)
 
     wordTxt = lost_font.render(word.upper(), 1, BLACK)
@@ -162,9 +165,8 @@ while inPlay:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             inPlay = False
-        if event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_ESCAPE:
-                inPlay = False
+        if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
+            inPlay = False
         if event.type == pygame.MOUSEBUTTONDOWN:
             clickPos = pygame.mouse.get_pos()
             letter = buttonHit(clickPos[0], clickPos[1])
